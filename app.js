@@ -17,7 +17,14 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/books", (req, res, next) => {
+app.post("/api/books", (req, res, next) => {
+  console.log(req.body);
+  res.status(201).json({
+    message: String,
+  });
+});
+
+app.get("/api/books", (req, res, next) => {
   const books = [
     {
       userId: "oeihfzeoi",
