@@ -5,7 +5,7 @@ const uri = `mongodb+srv://pierrefraisse90:${process.env.PASSWORD}@booksdb.bnllr
 const mongoose = require("mongoose");
 
 const booksRoutes = require("./routes/books");
-const usersRoutes = require("./routes/users");
+const userRoutes = require("./routes/user");
 
 mongoose
   .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 });
 
 // Users requests
-app.use("/api/auth", usersRoutes);
+app.use("/api/auth", userRoutes);
 
 // Books requests
 app.use("/api/books", booksRoutes);
