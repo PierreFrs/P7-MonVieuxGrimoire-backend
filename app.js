@@ -1,6 +1,13 @@
+require("dotenv").config();
 const express = require("express");
-
 const app = express();
+const uri = `mongodb+srv://pierrefraisse90:${process.env.PASSWORD}@booksdb.bnllrtl.mongodb.net/?retryWrites=true&w=majority`;
+const mongoose = require("mongoose");
+
+mongoose
+  .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connexion à MongoDB réussie !"))
+  .catch(() => console.log("Connexion à MongoDB échouée !"));
 
 app.use(express.json());
 
