@@ -21,7 +21,7 @@ exports.getOneBook = (req, res, next) => {
     .catch((error) => res.status(404).json({ error }));
 };
 
-exports.createBook = (req, res, next) => {
+exports.createBook = async (req, res, next) => {
   const bookObject = JSON.parse(req.body.book);
   delete bookObject._id;
   delete bookObject._userId;
@@ -42,7 +42,7 @@ exports.createBook = (req, res, next) => {
     });
 };
 
-exports.modifyBook = (req, res, next) => {
+exports.modifyBook = async (req, res, next) => {
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
