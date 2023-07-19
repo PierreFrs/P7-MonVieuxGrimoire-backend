@@ -1,3 +1,4 @@
+const { log } = require("console");
 const Book = require("../models/Book");
 const fs = require("fs");
 
@@ -7,17 +8,19 @@ exports.getAllBooks = (req, res, next) => {
     .catch((error) => res.status(400).json({ error }));
 };
 
+exports.getOneBook = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then((book) => {
+      res.status(200).json(book);
+    })
+    .catch((error) => res.status(404).json({ error }));
+};
+
 exports.getBestRatedBooks = (req, res, next) => {
   Book.find()
     .sort({ averageRating: -1 })
     .limit(3)
     .then((books) => res.status(200).json(books))
-    .catch((error) => res.status(500).json({ error }));
-};
-
-exports.getOneBook = (req, res, next) => {
-  Book.findOne({ _id: req.params.id })
-    .then((book) => res.status(200).json(book))
     .catch((error) => res.status(404).json({ error }));
 };
 
@@ -93,11 +96,53 @@ exports.deleteBook = (req, res, next) => {
 };
 
 exports.rateBook = (req, res, next) => {
-  Book.findById(req.params.id)
+  const userId = req.body.userId;
+  const grade = req.body.rating;
+
+  if (!userId || !grade) {
+    return res
+      .status(400)
+      .json({ error: "userId or grade missing from request." });
+  }
+
+  Book.findOne({ _id: req.params.id })
     .then((book) => {
-      book.ratings.push(req.body);
+      if (!book) {
+        return res.status(404).json({ error: "Book not found." });
+      }
+
+      const existingRating = book.ratings.find(
+        (rating) => String(rating.userId) === String(userId)
+      );
+
+      if (existingRating) {
+        existingRating.grade = grade;
+      } else {
+        book.ratings.push({ userId, grade });
+      }
+
+      // Recalculate the average rating
+      const totalRatings = book.ratings.length;
+      const sumGrades = book.ratings.reduce(
+        (sum, rating) => sum + rating.grade,
+        0
+      );
+      book.averageRating = parseFloat((sumGrades / totalRatings).toFixed(1));
+
+      book.markModified("ratings");
+
       return book.save();
     })
-    .then(() => res.status(200).json({ message: "Livre noté !" }))
-    .catch((error) => res.status(500).json({ error }));
+    .then((updatedBook) => {
+      if (!updatedBook) {
+        return res.status(500).json({ error: "Failed to save book." });
+      }
+      res.status(200).json(updatedBook);
+    })
+    .catch((error) => {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: "An error occurred while rating the book." });
+    });
 };
