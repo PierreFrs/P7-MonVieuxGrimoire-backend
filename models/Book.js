@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+// Data model for database
 const bookSchema = mongoose.Schema({
   userId: { type: String, required: true },
   title: { type: String, required: true },
