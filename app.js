@@ -14,8 +14,11 @@ const booksRoutes = require("./routes/books");
 const userRoutes = require("./routes/user");
 // Import the rate limiter middleware
 const rateLimiter = require("./middleware/rate-limiter");
-// Import mongo-sanitize
+// Import mongo-sanitize to prevent from noSQL injections
 const mongoSanitize = require("express-mongo-sanitize");
+// Import the helmet config from the middleware folder
+const helmetConfig = require("./middleware/helmet-config");
+
 // db connexion handler
 mongoose
   .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -23,6 +26,8 @@ mongoose
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 // Json express middleware => parses request headers
 app.use(express.json());
+// Use Helmet to help secure Express apps with various HTTP headers
+app.use(helmetConfig);
 // Apply default config of express-mongo-sanitize
 app.use(mongoSanitize());
 // Apply rate limiter to all requests
