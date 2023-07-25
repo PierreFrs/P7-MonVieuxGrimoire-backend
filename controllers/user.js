@@ -2,12 +2,36 @@ require("dotenv").config();
 const secretTokenKey = `${process.env.TOKEN_KEY}`;
 // imports bcrypt for password hash
 const bcrypt = require("bcrypt");
+// Imports validator for email and password validation
+const validator = require("validator");
 // User database model
 const User = require("../models/User");
 // json web token
 const jwt = require("jsonwebtoken");
 // signup function
 exports.signup = (req, res, next) => {
+  // Validate user email
+  if (!validator.isEmail(req.body.email)) {
+    return res.status(400).json({ error: "Doit être un email valide" });
+  }
+
+  // Validate user password
+  if (
+    !validator.isStrongPassword(req.body.password, {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+      returnScore: false,
+    })
+  ) {
+    return res.status(400).json({
+      error:
+        "Le mot de passe doit être composé d'au moins 8 caractères dont une majuscule, un chiffre et un caractère spécial (/*;...).",
+    });
+  }
+
   // password hash => 10 turns
   bcrypt
     .hash(req.body.password, 10)
