@@ -1,5 +1,5 @@
 require("dotenv").config();
-const tokenKey = `${process.env.TOKEN_KEY}`;
+const secretTokenKey = `${process.env.TOKEN_KEY}`;
 // imports bcrypt for password hash
 const bcrypt = require("bcrypt");
 // User database model
@@ -50,7 +50,7 @@ exports.login = (req, res, next) => {
           // Returns token if valid
           res.status(200).json({
             userId: user._id,
-            token: jwt.sign({ userId: user._id }, tokenKey, {
+            token: jwt.sign({ userId: user._id }, secretTokenKey, {
               expiresIn: "24h",
             }),
           });

@@ -118,7 +118,7 @@ exports.deleteBook = (req, res, next) => {
 
 exports.rateBook = (req, res, next) => {
   // gets the user ID
-  const userId = req.body.userId;
+  const userId = req.auth.userId;
   // gets the grade
   const grade = req.body.rating;
   // error if one is missing
@@ -140,7 +140,7 @@ exports.rateBook = (req, res, next) => {
       );
       // if there is a rating associated with the userId => updates the rating
       if (existingRating) {
-        existingRating.grade = grade;
+        return res.status(401).json({ error: "Vous avez déjà noté ce livre." });
         // else, adds the rating to the DB
       } else {
         book.ratings.push({ userId, grade });

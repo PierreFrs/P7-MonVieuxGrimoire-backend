@@ -1,5 +1,5 @@
 require("dotenv").config();
-const tokenKey = `${process.env.TOKEN_KEY}`;
+const secretTokenKey = `${process.env.TOKEN_KEY}`;
 // json web token package import
 const jwt = require("jsonwebtoken");
 // export to be used as a middleware
@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
     // splits the authorization header and keeps the token
     const token = req.headers.authorization.split(" ")[1];
     // Token verification with secret key
-    const decodedToken = jwt.verify(token, tokenKey);
+    const decodedToken = jwt.verify(token, secretTokenKey);
     // Gets the user ID
     const userId = decodedToken.userId;
     // Make the user ID go through in order to be re-used by other middlewares
