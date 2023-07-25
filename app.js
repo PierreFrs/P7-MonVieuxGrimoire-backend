@@ -12,6 +12,8 @@ const path = require("path");
 // imports the routes for the user and the books
 const booksRoutes = require("./routes/books");
 const userRoutes = require("./routes/user");
+// Import the rate limiter middleware
+const rateLimiter = require("./middleware/rate-limiter");
 // db connexion handler
 mongoose
   .connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -19,6 +21,8 @@ mongoose
   .catch(() => console.log("Connexion à MongoDB échouée !"));
 // Json express middleware => parses request headers
 app.use(express.json());
+// Apply rate limiter to all requests
+app.use(rateLimiter);
 // Cross Origins Ressource Sharing setter => allows front and back communication
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
