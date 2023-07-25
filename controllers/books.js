@@ -1,4 +1,3 @@
-const { log } = require("console");
 const Book = require("../models/Book");
 const fs = require("fs");
 
