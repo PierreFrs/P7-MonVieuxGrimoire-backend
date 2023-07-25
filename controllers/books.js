@@ -54,7 +54,7 @@ exports.createBook = async (req, res, next) => {
 };
 
 exports.modifyBook = async (req, res, next) => {
-  // Checks if an image is sent, if yes it updates the URL, if not it just sends the request body
+  // Converts the book into an object and checks if tere is a file in the request
   const bookObject = req.file
     ? {
         ...JSON.parse(req.body.book),
@@ -63,27 +63,33 @@ exports.modifyBook = async (req, res, next) => {
         }`,
       }
     : { ...req.body };
-  // Deletes the user ID (will be replaced with the one in req.auth)
+  // Deletes the userId to be replaced with the one in the auth request
   delete bookObject._userId;
-  // Find the book corresponding to the requested id
   Book.findOne({ _id: req.params.id })
     .then((book) => {
-      // Checks if the user is authorized to modify the book
+      // Checks if the book's user ID matches the auth user ID
       if (book.userId != req.auth.userId) {
         res.status(401).json({ message: "Non-autorisé" });
       } else {
+        // Deletes the previous image if the user updates it
+        if (req.file && book.imageUrl) {
+          const filename = book.imageUrl.split("/images/")[1];
+          fs.unlink(`images/${filename}`, (err) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+          });
+        }
         // Updates the book in the DB
         Book.updateOne(
-          // Makes sure it's the right book
           { _id: req.params.id },
-          // updates the book and the id to be sure it stays the same
           { ...bookObject, _id: req.params.id }
         )
           .then(() => res.status(200).json({ message: "Livre modifié !" }))
           .catch((error) => res.status(401).json({ error }));
       }
     })
-    // error handler
     .catch((error) => {
       res.status(400).json({ error });
     });
@@ -127,6 +133,13 @@ exports.rateBook = (req, res, next) => {
       .status(400)
       .json({ error: "userId or grade missing from request." });
   }
+  // error if the grade is not between 0 and 5
+  if (grade < 0 || grade > 5) {
+    return res
+      .status(400)
+      .json({ error: "La note doit être comprise entre 0 et 5" });
+  }
+
   // Finds the book to rate with the id
   Book.findOne({ _id: req.params.id })
     .then((book) => {
