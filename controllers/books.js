@@ -133,11 +133,13 @@ exports.rateBook = (req, res, next) => {
   const userId = req.auth.userId;
   // gets the grade
   const grade = req.body.rating;
+  // Sets the grade to be 0 if undefined (allows the user to give a 0)
+  if (grade === null) {
+    grade = 0;
+  }
   // error if one is missing
-  if (!userId || !grade) {
-    return res
-      .status(400)
-      .json({ error: "userId or grade missing from request." });
+  if (!userId) {
+    return res.status(400).json({ error: "userId is missing from request." });
   }
   // error if the grade is not between 0 and 5
   if (grade < 0 || grade > 5) {
