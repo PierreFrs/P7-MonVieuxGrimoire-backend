@@ -32,6 +32,10 @@ exports.createBook = async (req, res, next) => {
   // id => provided by mongoDB ; userID => provided by req.auth
   delete bookObject._id;
   delete bookObject._userId;
+  // Set default values for averageRating and ratings if not provided by user
+  const averageRating =
+    bookObject.averageRating !== null ? bookObject.averageRating : 0;
+  const ratings = bookObject.ratings !== null ? bookObject.ratings : [];
   // Creates a new book instance
   const book = new Book({
     // spread operator (copy all the bookObject properties into the new book), gets the user id from req.auth,
@@ -41,6 +45,8 @@ exports.createBook = async (req, res, next) => {
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
     }`,
+    averageRating: averageRating,
+    ratings: ratings,
   });
   // Saves the book to the DB and handles errors
   book
