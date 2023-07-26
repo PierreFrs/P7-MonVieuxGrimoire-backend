@@ -34,13 +34,8 @@ exports.createBook = async (req, res, next) => {
   delete bookObject._userId;
   // Set default values for averageRating and ratings if not provided by user
   const averageRating =
-    bookObject.averageRating === undefined || bookObject.averageRating === null
-      ? bookObject.averageRating
-      : 0;
-  const ratings =
-    bookObject.ratings === undefined || bookObject.ratings === null
-      ? bookObject.ratings
-      : [];
+    bookObject.averageRating === undefined ? bookObject.averageRating : 0;
+  const ratings = bookObject.ratings === undefined ? bookObject.ratings : [];
   // Creates a new book instance
   const book = new Book({
     // spread operator (copy all the bookObject properties into the new book), gets the user id from req.auth,
